@@ -4,33 +4,23 @@
 # Annotate the Virtual Cell Challenge (VCC) Seurat object
 # ==============================================================================
 #
-# Loads the merged VCC Seurat object published by the Arc Institute for the
-# Virtual Cell Challenge and adds the metadata columns needed for all
-# downstream analyses:
+# Loads the merged VCC Seurat object and adds the following metadata columns:
 #
-#   lane                    — sequencing lane (1, 2, or 3), parsed from 'batch'
-#   probe_barcode_seq       — 8 bp probe barcode, extracted from cell barcode
-#   probe_barcode           — probe barcode ID (BC001–BC016)
-#   percent.mito            — % mitochondrial UMIs per cell
-#   target_gene_probe_barcode — "<target_gene>_<probe_barcode>" convenience column
+#   lane                      sequencing lane (1, 2, or 3), parsed from 'batch'
+#   probe_barcode_seq         8 bp probe barcode sequence extracted from the
+#                             last 8 bases of the 16 bp cell barcode
+#   probe_barcode             probe barcode ID (BC001–BC016), mapped from sequence
+#   percent.mito              percent mitochondrial UMIs per cell
+#   target_gene_probe_barcode "<target_gene>_<probe_barcode>" combined column
 #
 # INPUT
-#   VCC merged Seurat object (.qs)
-#   Set VCC_QS_PATH below to point to your local copy.
+#   VCC merged Seurat object (.qs) — set VCC_QS_PATH below
 #
 # OUTPUT
-#   <RESULTS_DIR>/seurat_vcc_annotated.qs   — annotated Seurat object
-#
-# DATA AVAILABILITY
-#   The VCC merged Seurat object is publicly available from the Arc Institute
-#   Virtual Cell Challenge:
-#   https://www.kaggle.com/competitions/open-problems-single-cell-perturbations
+#   <RESULTS_DIR>/seurat_vcc_annotated.qs
 #
 # USAGE
 #   Rscript scripts/figure1/01_setup_vcc_seurat.R
-#
-# EXPECTED RUNTIME
-#   ~10 minutes (dominated by reading the large .qs file)
 #
 # ==============================================================================
 
