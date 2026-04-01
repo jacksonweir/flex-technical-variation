@@ -31,7 +31,7 @@ suppressPackageStartupMessages({
 
 RESULTS_DIR <- "results"
 IN_QS       <- file.path(RESULTS_DIR, "seurat_a375_flexv2_filtered.qs")
-OUT_CSV     <- file.path(RESULTS_DIR, "DE_A375_flexv2_FindAllMarkers_wilcox.csv")
+OUT_CSV     <- file.path(RESULTS_DIR, "DE_A375_flexv2_FindAllMarkers_wilcox_minpct0.1.csv")
 
 if (!file.exists(IN_QS)) {
   stop("Filtered A375 Seurat not found: ", IN_QS,

@@ -4,30 +4,29 @@
 # Violin plots of expression by probe barcode for SRP9 and SPCS1 (Figure 1D)
 # ==============================================================================
 #
-# Loads the eta-squared results to confirm rank order, then plots per-cell
-# expression of the top two genes (SRP9, rank 1; SPCS1, rank 2) across probe
-# barcodes in NTC cells. Violins are split and colored by sequencing lane.
+# Plots per-cell expression of the top two η²-ranked genes (SRP9, rank 1;
+# SPCS1, rank 2) across probe barcodes in NTC cells. Violins are split and
+# colored by sequencing lane.
 #
-# Uses Seurat's VlnPlot() on the NTC-subset Seurat object.
+# Reads from the pre-extracted CSV (no Seurat required at plot time). Run
+# scripts/figure1/00_prep_violin_data.R first (mel_spatial env) to generate
+# the input CSV.
 #
 # INPUT
-#   results/seurat_vcc_annotated.qs              — from 01_setup_vcc_seurat.R
+#   results/vcc_ntc_violin_data.csv              — from 00_prep_violin_data.R
 #   results/variance_explained_probe_barcode_NTC.csv  — from 04_compute_variance_explained.R
 #
 # OUTPUT
-#   results/figures/fig1d_vln_SRP9_by_probe_barcode.pdf
-#   results/figures/fig1d_vln_SPCS1_by_probe_barcode.pdf
+#   results/figures/fig1d_SRP9.pdf
+#   results/figures/fig1d_SPCS1.pdf
 #
 # USAGE
-#   Rscript scripts/figure1/plot/fig1d_violin_top_genes.R
+#   conda run -n trekker Rscript scripts/figure1/plot/fig1d_violin_top_genes.R
 #
 # ==============================================================================
 
 suppressPackageStartupMessages({
-  library(Seurat)
-  library(qs)
   library(ggplot2)
-  library(ggthemes)
   library(dplyr)
 })
 
@@ -35,57 +34,47 @@ RESULTS_DIR <- "results"
 FIGURES_DIR <- file.path(RESULTS_DIR, "figures")
 dir.create(FIGURES_DIR, showWarnings = FALSE, recursive = TRUE)
 
-VCC_QS  <- file.path(RESULTS_DIR, "seurat_vcc_annotated.qs")
-ETA_CSV <- file.path(RESULTS_DIR, "variance_explained_probe_barcode_NTC.csv")
-NTC_LABEL <- "non-targeting"
+VIOLIN_CSV <- file.path(RESULTS_DIR, "vcc_ntc_violin_data.csv")
+ETA_CSV    <- file.path(RESULTS_DIR, "variance_explained_probe_barcode_NTC.csv")
 
-# ==============================================================================
-# Confirm top genes from eta-squared results
-# ==============================================================================
-
-if (!file.exists(ETA_CSV)) {
-  stop("Eta-squared CSV not found: ", ETA_CSV,
-       "\nRun 04_compute_variance_explained.R first.")
+for (f in c(VIOLIN_CSV, ETA_CSV)) {
+  if (!file.exists(f)) {
+    stop("Required file not found: ", f,
+         "\nRun 00_prep_violin_data.R and 04_compute_variance_explained.R first.")
+  }
 }
 
-df_eta    <- read.csv(ETA_CSV) %>% arrange(rank_bc)
-top2      <- df_eta$gene[1:2]
-message(sprintf("Top 2 genes by probe barcode eta²: %s", paste(top2, collapse = ", ")))
-
 # ==============================================================================
-# Load Seurat and subset to NTC cells
+# Load data
 # ==============================================================================
 
-if (!file.exists(VCC_QS)) {
-  stop("VCC Seurat not found: ", VCC_QS, "\nRun 01_setup_vcc_seurat.R first.")
-}
+df  <- read.csv(VIOLIN_CSV, stringsAsFactors = FALSE)
+eta <- read.csv(ETA_CSV) |> dplyr::arrange(rank_bc)
 
-message("Loading VCC Seurat object...")
-seurat_vcc <- qread(VCC_QS)
+top_genes <- unique(df$gene)
+message("Genes to plot: ", paste(top_genes, collapse = ", "))
 
-cells_ntc  <- colnames(seurat_vcc)[
-  !is.na(seurat_vcc$target_gene) &
-  seurat_vcc$target_gene == NTC_LABEL &
-  !is.na(seurat_vcc$probe_barcode)
-]
-seurat_ntc <- subset(seurat_vcc, cells = cells_ntc)
-rm(seurat_vcc); gc()
+# ==============================================================================
+# Factor levels and colors
+# ==============================================================================
 
-message(sprintf("NTC cells: %d", ncol(seurat_ntc)))
+bc_order         <- paste0("BC", sprintf("%03d", 1:16))
+df$probe_barcode <- factor(df$probe_barcode, levels = bc_order)
+df$lane          <- factor(df$lane, levels = c("1", "2", "3"))
 
-Idents(seurat_ntc) <- seurat_ntc$probe_barcode
-
-# Lane colors (colorblind-friendly palette)
 lane_colors <- c("1" = "#E69F00", "2" = "#56B4E9", "3" = "#009E73")
-seurat_ntc$lane <- as.factor(seurat_ntc$lane)
 
-vln_theme <- theme_few() +
+# ==============================================================================
+# Theme
+# ==============================================================================
+
+vln_theme <- theme_classic() +
   theme(
-    plot.title        = element_text(size = 15, color = "black", hjust = 0.5,
+    plot.title        = element_text(size = 30, color = "black", hjust = 0.5,
                                      face = "italic"),
-    axis.title        = element_text(size = 17, color = "black"),
-    axis.text         = element_text(size = 14, color = "black"),
-    axis.text.x       = element_text(angle = 45, hjust = 1),
+    axis.title        = element_text(size = 28, color = "black"),
+    axis.text         = element_text(size = 24, color = "black"),
+    axis.text.x       = element_text(size = 24, angle = 45, hjust = 1),
     axis.ticks        = element_line(color = "black"),
     axis.ticks.length = unit(0.15, "cm"),
     axis.line         = element_line(color = "black", linewidth = 0.6),
@@ -93,37 +82,42 @@ vln_theme <- theme_few() +
     panel.grid.major  = element_blank(),
     panel.grid.minor  = element_blank(),
     legend.position   = "right",
-    legend.title      = element_text(size = 13, color = "black"),
-    legend.text       = element_text(size = 13, color = "black")
+    legend.text       = element_text(size = 24, color = "black"),
+    legend.title      = element_text(size = 26, color = "black")
   )
 
 # ==============================================================================
-# Plot and save
+# Plot and save (one PDF per gene)
 # ==============================================================================
 
-for (gene in top2) {
-  if (!(gene %in% rownames(seurat_ntc))) {
-    message(sprintf("Skipping %s: not found in matrix", gene))
+for (gene in top_genes) {
+  eta_val  <- eta$eta_sq_bc[eta$gene == gene]
+  rank_val <- eta$rank_bc[eta$gene == gene]
+  if (length(eta_val) == 0) {
+    message("Gene not found in \u03b7\u00b2 table: ", gene, " \u2014 skipping")
     next
   }
-  eta_val  <- df_eta$eta_sq_bc[df_eta$gene == gene]
-  rank_val <- df_eta$rank_bc[df_eta$gene == gene]
 
-  p <- VlnPlot(seurat_ntc, features = gene, split.by = "lane", pt.size = 0) +
+  df_gene <- df[df$gene == gene & !is.na(df$probe_barcode), ]
+
+  # y-axis breaks every 1 unit
+  y_range  <- range(df_gene$expression, na.rm = TRUE)
+  y_breaks <- seq(floor(y_range[1]), ceiling(y_range[2]), by = 1)
+  y_labels <- sprintf("%.1f", y_breaks)
+
+  p <- ggplot(df_gene, aes(x = probe_barcode, y = expression, fill = lane)) +
+    geom_violin(color = "black", scale = "width", trim = TRUE,
+                linewidth = 0.3, position = position_dodge(width = 0.9)) +
+    scale_fill_manual(values = lane_colors, name = "Lane") +
+    scale_y_continuous(breaks = y_breaks, labels = y_labels) +
     labs(
-      title = sprintf("%s  (rank %d, \u03b7\u00b2 = %.3f)", gene, rank_val, eta_val),
+      title = gene,
       x     = "Probe barcode",
-      y     = "Normalized expression (NTC cells)",
-      fill  = "Lane"
+      y     = "Expression"
     ) +
-    scale_fill_manual(values  = lane_colors) +
-    scale_color_manual(values = lane_colors) +
-    guides(color = guide_legend(title = "Lane"),
-           fill  = guide_legend(title = "Lane")) +
     vln_theme
 
-  out_pdf <- file.path(FIGURES_DIR,
-    sprintf("fig1d_vln_%s_by_probe_barcode.pdf", gene))
+  out_pdf <- file.path(FIGURES_DIR, sprintf("fig1d_%s.pdf", gene))
   ggsave(out_pdf, plot = p, width = 12, height = 3.5, device = cairo_pdf)
   message("Saved: ", basename(out_pdf))
 }

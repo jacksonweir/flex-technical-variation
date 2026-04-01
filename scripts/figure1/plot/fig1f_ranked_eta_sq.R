@@ -45,10 +45,10 @@ if (!file.exists(INPUT_CSV)) {
 # Load and label
 # ==============================================================================
 
-df_eta <- read.csv(INPUT_CSV) %>% arrange(rank_bc)
+df_eta <- read.csv(INPUT_CSV) |> arrange(rank_bc)
 
 n_above <- sum(df_eta$eta_sq_bc >= ETA_THRESH)
-message(sprintf("Genes with eta² >= 1%%: %d / %d", n_above, nrow(df_eta)))
+message(sprintf("Genes with eta\u00b2 >= 1%%: %d / %d", n_above, nrow(df_eta)))
 
 above_thresh  <- df_eta[df_eta$eta_sq_bc >= ETA_THRESH, ]
 label_genes   <- head(above_thresh$gene, N_TOP_LABEL)
@@ -60,29 +60,29 @@ df_eta$label  <- ifelse(df_eta$gene %in% label_genes, df_eta$gene, NA_character_
 
 p <- ggplot(df_eta, aes(x = rank_bc, y = eta_sq_bc,
                          color = eta_sq_bc >= ETA_THRESH)) +
-  geom_point(alpha = 0.6, size = 0.8, shape = 16) +
+  geom_point(alpha = 0.6, size = 1.2, shape = 16) +
   scale_color_manual(values = c("TRUE" = "tomato3", "FALSE" = "grey60")) +
   geom_hline(yintercept = ETA_THRESH,
              linetype = "dashed", color = "black", linewidth = 0.5) +
   geom_text_repel(
     aes(label = label),
-    size = 3, force = 0.5, max.overlaps = 20,
-    box.padding = 0.2, point.padding = 0.15, segment.size = 0.15,
+    size = 7, force = 0.5, max.overlaps = 12,
+    box.padding = 0.2, point.padding = 0.15, segment.size = 0.2,
     na.rm = TRUE, color = "black", segment.color = "black"
   ) +
   annotate("text",
     x = nrow(df_eta), y = ETA_THRESH, vjust = -0.5, hjust = 1,
     label = sprintf("\u03b7\u00b2 = 1%% (n = %d genes)", n_above),
-    size = 3.5, color = "black") +
+    size = 7, color = "black") +
   scale_x_continuous(limits = c(1, nrow(df_eta))) +
   scale_y_continuous(labels = percent_format(accuracy = 1),
                      limits = c(0, max(df_eta$eta_sq_bc) * 1.05)) +
   labs(x = "Gene rank (by probe barcode \u03b7\u00b2)",
-       y = "Variance explained by probe barcode (\u03b7\u00b2)") +
+       y = "Variance explained by probe barcode") +
   theme_few() +
   theme(
-    axis.title        = element_text(size = 17, color = "black"),
-    axis.text         = element_text(size = 14, color = "black"),
+    axis.title        = element_text(size = 20, color = "black"),
+    axis.text         = element_text(size = 16, color = "black"),
     legend.position   = "none",
     axis.ticks        = element_line(color = "black"),
     axis.ticks.length = unit(0.15, "cm"),
@@ -93,7 +93,7 @@ p <- ggplot(df_eta, aes(x = rank_bc, y = eta_sq_bc,
   )
 
 ggsave(file.path(FIGURES_DIR, "fig1f_ranked_eta_sq_probe_barcode.pdf"),
-       p, width = 7, height = 5, device = cairo_pdf)
+       p, width = 7, height = 5.8, device = cairo_pdf)
 message("Saved: fig1f_ranked_eta_sq_probe_barcode.pdf")
 
 message("Done.")

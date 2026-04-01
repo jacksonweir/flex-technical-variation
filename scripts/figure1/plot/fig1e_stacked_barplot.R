@@ -47,24 +47,24 @@ if (!file.exists(INPUT_CSV)) {
 # Load, filter, and count per barcode
 # ==============================================================================
 
-df <- read.csv(INPUT_CSV) %>%
-  filter(!is.na(avg_log2FC), !is.na(p_val_adj)) %>%
-  filter(abs(avg_log2FC) >= LOG2FC_CUTOFF, p_val_adj < PVAL_CUTOFF) %>%
+df <- read.csv(INPUT_CSV) |>
+  filter(!is.na(avg_log2FC), !is.na(p_val_adj)) |>
+  filter(abs(avg_log2FC) >= LOG2FC_CUTOFF, p_val_adj < PVAL_CUTOFF) |>
   mutate(direction = case_when(
     avg_log2FC >= LOG2FC_CUTOFF  ~ "Upregulated",
     avg_log2FC <= -LOG2FC_CUTOFF ~ "Downregulated"
-  )) %>%
+  )) |>
   filter(!is.na(direction))
 
 message(sprintf("Significant genes: %d  (Up: %d  Down: %d)",
   nrow(df), sum(df$direction == "Upregulated"), sum(df$direction == "Downregulated")))
 
-counts <- df %>%
-  group_by(cluster, direction) %>%
-  summarise(n_genes = n(), .groups = "drop") %>%
-  complete(cluster, direction, fill = list(n_genes = 0)) %>%
+counts <- df |>
+  group_by(cluster, direction) |>
+  summarise(n_genes = n(), .groups = "drop") |>
+  complete(cluster, direction, fill = list(n_genes = 0)) |>
   mutate(
-    cluster   = factor(cluster, levels = sort(unique(cluster))),
+    cluster   = factor(cluster, levels = paste0("BC", sprintf("%03d", 1:16))),
     direction = factor(direction, levels = c("Downregulated", "Upregulated"))
   )
 
@@ -79,8 +79,8 @@ p <- ggplot(counts, aes(x = cluster, y = n_genes, fill = direction)) +
   labs(x = "Probe barcode", y = "Number of DE genes", fill = NULL) +
   theme_few() +
   theme(
-    axis.title        = element_text(size = 17, color = "black"),
-    axis.text         = element_text(size = 14, color = "black"),
+    axis.title        = element_text(size = 20, color = "black"),
+    axis.text         = element_text(size = 16, color = "black"),
     axis.text.x       = element_text(angle = 45, hjust = 1),
     axis.ticks        = element_line(color = "black"),
     axis.ticks.length = unit(0.15, "cm"),
@@ -89,7 +89,7 @@ p <- ggplot(counts, aes(x = cluster, y = n_genes, fill = direction)) +
     panel.grid.major  = element_blank(),
     panel.grid.minor  = element_blank(),
     legend.position   = "right",
-    legend.text       = element_text(size = 13, color = "black")
+    legend.text       = element_text(size = 15, color = "black")
   )
 
 ggsave(file.path(FIGURES_DIR, "fig1e_stacked_barplot_DE_per_probe_barcode.pdf"),

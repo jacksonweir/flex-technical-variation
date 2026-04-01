@@ -43,8 +43,8 @@ if (!file.exists(INPUT_CSV)) {
 
 df_all <- read.csv(INPUT_CSV)
 
-df_median <- df_all %>%
-  group_by(log2fc_cutoff) %>%
+df_median <- df_all |>
+  group_by(log2fc_cutoff) |>
   summarise(med_fdp = median(FDP, na.rm = TRUE), .groups = "drop")
 
 message(sprintf("Genes: %d  |  Thresholds: %d",
@@ -80,8 +80,8 @@ p <- ggplot() +
   theme(
     legend.position   = "none",
     text              = element_text(color = "black"),
-    axis.title        = element_text(size = 17, color = "black"),
-    axis.text         = element_text(size = 14, color = "black"),
+    axis.title        = element_text(size = 20, color = "black"),
+    axis.text         = element_text(size = 16, color = "black"),
     axis.ticks        = element_line(color = "black"),
     axis.ticks.length = unit(0.15, "cm"),
     axis.line         = element_line(color = "black", linewidth = 0.6),

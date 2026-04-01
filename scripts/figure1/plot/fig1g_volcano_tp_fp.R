@@ -66,7 +66,7 @@ truth_de_genes <- df_truth$gene[
 ]
 message(sprintf("Ground truth DE genes for %s: %d", TARGET_GENE, length(truth_de_genes)))
 
-df_plot <- df_conf %>%
+df_plot <- df_conf |>
   mutate(
     p_val_adj  = ifelse(is.na(p_val_adj), 1, p_val_adj),
     log10_pval = -log10(p_val_adj + 1e-300),
@@ -84,14 +84,14 @@ message(sprintf("Confounded analysis — TP: %d  FP: %d  FDP: %.1f%%",
                 n_tp, n_fp, 100 * n_fp / max(n_tp + n_fp, 1)))
 
 # Label top significant genes by -log10(p) (split evenly TP/FP)
-df_label <- df_plot %>%
-  filter(reg_dir %in% c("True Positive", "False Positive")) %>%
-  arrange(desc(log10_pval)) %>%
-  group_by(reg_dir) %>%
-  slice_head(n = ceiling(MAX_LABELS / 2)) %>%
+df_label <- df_plot |>
+  filter(reg_dir %in% c("True Positive", "False Positive")) |>
+  arrange(desc(log10_pval)) |>
+  group_by(reg_dir) |>
+  slice_head(n = ceiling(MAX_LABELS / 2)) |>
   ungroup()
 
-df_plot$label  <- ifelse(df_plot$gene %in% df_label$gene, df_plot$gene, NA_character_)
+df_plot$label   <- ifelse(df_plot$gene %in% df_label$gene, df_plot$gene, NA_character_)
 df_plot$reg_dir <- factor(df_plot$reg_dir,
   levels = c("True Positive", "False Positive", "Not Significant"))
 
@@ -100,7 +100,7 @@ df_plot$reg_dir <- factor(df_plot$reg_dir,
 # ==============================================================================
 
 p <- ggplot(df_plot, aes(x = avg_log2FC, y = log10_pval)) +
-  geom_point(aes(color = reg_dir, shape = reg_dir), alpha = 0.8, size = 1.5) +
+  geom_point(aes(color = reg_dir, shape = reg_dir), alpha = 0.8, size = 2.5) +
   scale_color_manual(values = c(
     "True Positive"   = "#3CB371",
     "False Positive"  = "tomato3",
@@ -117,8 +117,8 @@ p <- ggplot(df_plot, aes(x = avg_log2FC, y = log10_pval)) +
              linetype = "dashed", color = "black") +
   geom_text_repel(
     aes(label = label),
-    size = 3, force = 0.5, max.overlaps = MAX_LABELS,
-    box.padding = 0.1, point.padding = 0.1, segment.size = 0.1,
+    size = 6, force = 0.5, max.overlaps = 20,
+    box.padding = 0.2, point.padding = 0.1, segment.size = 0.2,
     na.rm = TRUE, color = "black", segment.color = "black"
   ) +
   labs(
@@ -128,8 +128,8 @@ p <- ggplot(df_plot, aes(x = avg_log2FC, y = log10_pval)) +
   theme_classic() +
   theme(
     text              = element_text(color = "black"),
-    axis.title        = element_text(size = 17, color = "black"),
-    axis.text         = element_text(size = 14, color = "black"),
+    axis.title        = element_text(size = 20, color = "black"),
+    axis.text         = element_text(size = 16, color = "black"),
     axis.ticks        = element_line(color = "black"),
     axis.ticks.length = unit(0.15, "cm"),
     axis.line         = element_line(color = "black", linewidth = 0.6),

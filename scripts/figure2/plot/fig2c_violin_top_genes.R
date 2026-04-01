@@ -4,82 +4,72 @@
 # Violin plots of SRP9 and SPCS1 by probe barcode — A375 FLEXv2 (Figure 2C)
 # ==============================================================================
 #
-# Plots expression distributions of SRP9 and SPCS1 across Flex v2 probe barcode
-# numbers in PBS-treated A375 cells. These genes show substantial barcode-driven
-# expression variation in the VCC Flex v1 dataset (Figure 1D). Plotting them in
-# a Flex v2 PBS-cell dataset allows direct comparison of the technical artifact
-# magnitude between probe kit versions.
+# Plots expression distributions of SRP9 and SPCS1 across Flex v2 probe
+# barcodes in A375 cells. These genes show substantial barcode-driven expression
+# variation in the VCC Flex v1 dataset (Figure 1D). Plotting them in the A375
+# Flex v2 dataset allows direct comparison of the technical artifact magnitude
+# between kit versions.
 #
-# Cells are from a controlled experiment in which A375 cells were treated with
-# PBS and distributed across multiple Flex v2 sample barcodes. Because all cells
-# received the same treatment, any expression variation across probe barcodes is
-# a technical artifact of the barcoding chemistry.
+# Reads from the pre-extracted CSV (no Seurat required at plot time). Run
+# scripts/figure2/00_prep_violin_data_flexv2.R first (mel_spatial env) to
+# generate the input CSV.
 #
-# NOTE: This script requires the PBS-cell Seurat object from the Chen lab
-# servers. Set A375_PBS_RDS below to the correct path. This object uses
-# `probe_barcode_number` as the grouping variable (Flex v2 barcode labels).
-#
-# INPUT  (user must set path)
-#   A375_PBS_RDS — RDS path to flex_v2_seurat_obj_filt_PBS.rds
+# INPUT
+#   results/a375_flexv2_violin_data.csv   — from 00_prep_violin_data_flexv2.R
 #
 # OUTPUT
-#   results/figures/fig2c_vln_SRP9_by_probe_barcode_a375.pdf
-#   results/figures/fig2c_vln_SPCS1_by_probe_barcode_a375.pdf
+#   results/figures/fig2c_SRP9.pdf
+#   results/figures/fig2c_SPCS1.pdf
 #
 # USAGE
-#   Rscript scripts/figure2/plot/fig2c_violin_top_genes.R
+#   conda run -n trekker Rscript scripts/figure2/plot/fig2c_violin_top_genes.R
 #
 # ==============================================================================
 
 suppressPackageStartupMessages({
-  library(Seurat)
   library(ggplot2)
-  library(ggthemes)
+  library(dplyr)
 })
-
-# Set to path of the PBS-cell A375 FLEXv2 Seurat object (Chen lab servers)
-A375_PBS_RDS <- "/path/to/flex_v2_seurat_obj_filt_PBS.rds"
 
 RESULTS_DIR <- "results"
 FIGURES_DIR <- file.path(RESULTS_DIR, "figures")
 dir.create(FIGURES_DIR, showWarnings = FALSE, recursive = TRUE)
 
-GENES <- c("SRP9", "SPCS1")
+VIOLIN_CSV <- file.path(RESULTS_DIR, "a375_flexv2_violin_data.csv")
 
-if (!file.exists(A375_PBS_RDS)) {
-  stop("A375 PBS Seurat object not found: ", A375_PBS_RDS,
-       "\nThis data is stored on the Chen lab servers (not publicly available).",
-       "\nUpdate A375_PBS_RDS at the top of this script.")
+if (!file.exists(VIOLIN_CSV)) {
+  stop("Violin data not found: ", VIOLIN_CSV,
+       "\nRun scripts/figure2/00_prep_violin_data_flexv2.R first (mel_spatial env).")
 }
 
 # ==============================================================================
-# Load and plot
+# Load data
 # ==============================================================================
 
-message("Loading A375 FLEXv2 PBS-cell Seurat object...")
-obj <- readRDS(A375_PBS_RDS)
-message(sprintf("Cells: %d", ncol(obj)))
+df <- read.csv(VIOLIN_CSV, stringsAsFactors = FALSE)
 
-genes_present <- GENES[GENES %in% rownames(obj)]
-if (length(genes_present) == 0) stop("None of the requested genes found in object.")
-if (length(genes_present) < length(GENES)) {
-  message("Note: genes not found in object: ",
-          paste(setdiff(GENES, genes_present), collapse = ", "))
-}
+top_genes <- unique(df$gene)
+message("Genes to plot: ", paste(top_genes, collapse = ", "))
 
-Idents(obj) <- obj$probe_barcode_number
-bc_vec  <- factor(obj$probe_barcode_number,
-                  levels = sort(unique(obj$probe_barcode_number)))
-n_bc    <- nlevels(bc_vec)
-bc_cols <- rep("steelblue3", n_bc)
+# ==============================================================================
+# Factor levels
+# ==============================================================================
 
-vln_theme <- theme_few() +
+bc_order         <- c(paste0("A-A", sprintf("%02d", 1:12)),
+                      paste0("A-B", sprintf("%02d", 1:4)))
+df$probe_barcode <- factor(df$probe_barcode, levels = bc_order)
+
+# ==============================================================================
+# Theme
+# ==============================================================================
+
+vln_theme <- theme_classic() +
   theme(
-    plot.title        = element_text(size = 17, color = "black", hjust = 0.5,
+    plot.title        = element_text(size = 34, color = "black", hjust = 0.5,
                                      face = "italic"),
-    axis.title        = element_text(size = 17, color = "black"),
-    axis.text         = element_text(size = 14, color = "black"),
-    axis.text.x       = element_text(angle = 45, hjust = 1),
+    axis.title        = element_text(size = 30, color = "black"),
+    axis.text         = element_text(size = 26, color = "black"),
+    axis.text.x       = element_text(size = 26, angle = 45, hjust = 1),
     axis.ticks        = element_line(color = "black"),
     axis.ticks.length = unit(0.15, "cm"),
     axis.line         = element_line(color = "black", linewidth = 0.6),
@@ -89,18 +79,34 @@ vln_theme <- theme_few() +
     legend.position   = "none"
   )
 
-for (gene in genes_present) {
-  message(sprintf("Plotting: %s", gene))
-  p <- VlnPlot(obj, features = gene, pt.size = 0, cols = bc_cols) +
-    labs(title = gene, x = "Probe barcode", y = "Expression") +
+# ==============================================================================
+# Plot and save (one PDF per gene)
+# ==============================================================================
+
+for (gene in top_genes) {
+  df_gene <- df[df$gene == gene & !is.na(df$probe_barcode), ]
+
+  # y-axis breaks every 1 unit, 1 decimal place labels
+  y_range  <- range(df_gene$expression, na.rm = TRUE)
+  y_breaks <- seq(floor(y_range[1]), ceiling(y_range[2]), by = 1)
+  y_labels <- sprintf("%.1f", y_breaks)
+
+  p <- ggplot(df_gene, aes(x = probe_barcode, y = expression)) +
+    geom_violin(fill = "steelblue3", color = "black", scale = "width",
+                trim = TRUE, linewidth = 0.3) +
+    scale_y_continuous(breaks = y_breaks, labels = y_labels,
+                       minor_breaks = NULL) +
+    labs(
+      title = gene,
+      x     = "Probe barcode",
+      y     = "Expression"
+    ) +
     vln_theme
 
-  out_file <- file.path(FIGURES_DIR,
-    sprintf("fig2c_vln_%s_by_probe_barcode_a375.pdf", gene))
-  ggsave(out_file, plot = p, width = 10, height = 3, device = cairo_pdf)
-  message("Saved: ", basename(out_file))
+  out_pdf <- file.path(FIGURES_DIR, sprintf("fig2c_%s.pdf", gene))
+  ggsave(out_pdf, plot = p, width = 12, height = 3.5, device = cairo_pdf)
+  message("Saved: ", basename(out_pdf))
 }
 
-rm(obj); gc()
 message("Done.")
 print(sessionInfo())

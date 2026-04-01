@@ -15,16 +15,23 @@
 # ENSG00000143742|SRP9|ac81972) rather than a gene. Only NTC cells from Lane 1
 # are included, matching the VCC analysis in Figure 1.
 #
-# NOTE: This script requires the VCC Lane 1 probe-level Seurat object, which
-# is stored on the Chen lab servers. Set VCC_PROBE_RDS below to the .rds path.
-# If a pre-built expression cache already exists at VCC_PROBE_CACHE, that
-# file is used directly without loading the full Seurat object.
+# NOTE: The pre-built expression cache vcc_probe_expr_sparse_cache_10k_feat_filt.rds
+# is publicly available from the Zenodo deposit (https://doi.org/10.5281/zenodo.19363777).
+# Download that file and set VCC_PROBE_CACHE below to its local path. The probe-level
+# Seurat object (VCC_PROBE_RDS) is an alternative source on the Chen lab servers;
+# the Zenodo cache is preferred for reproducibility.
+#
+# IMPORTANT: This script must run under the mel_spatial conda environment
+# (R 4.5.2 + Matrix 1.7+). Using trekker (R 4.3.3) drops dgCMatrix rownames.
+#   conda run -n mel_spatial Rscript scripts/figure2/compute/11_compute_vcc_probe_expression.R
 #
 # INPUT  (user must set paths)
-#   VCC_PROBE_RDS   — probe-level Seurat object (vcc_probe_obj_lane1_ntc_10k_feat_filt.rds)
+#   VCC_PROBE_CACHE — sparse expression cache from Zenodo:
+#                     vcc_probe_expr_sparse_cache_10k_feat_filt.rds
+#                     (rds list with $data, $counts, $barcodes fields)
 #   or
-#   VCC_PROBE_CACHE — pre-built sparse expression cache (rds list with $data,
-#                     $counts, $barcodes fields)
+#   VCC_PROBE_RDS   — probe-level Seurat object (vcc_probe_obj_lane1_ntc_10k_feat_filt.rds,
+#                     Chen lab servers only)
 #
 # OUTPUT
 #   results/vcc_probe_expression_cache.rds
@@ -42,9 +49,10 @@ suppressPackageStartupMessages({
   library(Matrix)
 })
 
-# Set these paths to the data on your system (Chen lab servers)
-VCC_PROBE_RDS   <- "/path/to/vcc_probe_obj_lane1_ntc_10k_feat_filt.rds"
+# Download from Zenodo (https://doi.org/10.5281/zenodo.19363777) and set path:
 VCC_PROBE_CACHE <- "/path/to/vcc_probe_expr_sparse_cache_10k_feat_filt.rds"
+# Alternatively, if you have the Chen lab probe-level Seurat object:
+VCC_PROBE_RDS   <- "/path/to/vcc_probe_obj_lane1_ntc_10k_feat_filt.rds"
 
 RESULTS_DIR <- "results"
 OUT_RDS     <- file.path(RESULTS_DIR, "vcc_probe_expression_cache.rds")
@@ -86,7 +94,9 @@ if (file.exists(VCC_PROBE_CACHE)) {
     "VCC_PROBE_RDS:   ", VCC_PROBE_RDS, "\n",
     "VCC_PROBE_CACHE: ", VCC_PROBE_CACHE, "\n",
     "Update these paths at the top of this script.\n",
-    "This data is stored on the Chen lab servers and is not publicly available."
+    "Download vcc_probe_expr_sparse_cache_10k_feat_filt.rds from Zenodo:\n",
+    "  https://doi.org/10.5281/zenodo.19363777\n",
+    "Then set VCC_PROBE_CACHE at the top of this script."
   )
 }
 

@@ -15,15 +15,21 @@
 # uses `probe_barcode_number` as the sample barcode identifier — a numeric
 # label (e.g. "A-A01", "A-A10") corresponding to Flex v2 sample barcodes.
 #
-# NOTE: This data is stored on the Chen lab servers and is not publicly
-# available. Set A375_PROBE_RDS and A375_PROBE_CACHE below to the correct
-# paths on your system.
+# NOTE: The pre-built expression cache flex_v2_probe_expr_sparse_cache_10k_feat_filt.rds
+# is publicly available from the Zenodo deposit (https://doi.org/10.5281/zenodo.19363777).
+# Download that file and set A375_PROBE_CACHE below to its local path.
+#
+# IMPORTANT: This script must run under the mel_spatial conda environment
+# (R 4.5.2 + Matrix 1.7+). Using trekker (R 4.3.3) drops dgCMatrix rownames.
+#   conda run -n mel_spatial Rscript scripts/figure2/compute/12_compute_a375_probe_expression.R
 #
 # INPUT  (user must set paths)
-#   A375_PROBE_RDS   — probe-level Seurat (flex_v2_probe_obj_PBS_10k_feat_filt.rds)
+#   A375_PROBE_CACHE — sparse expression cache from Zenodo:
+#                      flex_v2_probe_expr_sparse_cache_10k_feat_filt.rds
+#                      (rds list with $data, $counts, $barcodes fields)
 #   or
-#   A375_PROBE_CACHE — pre-built sparse expression cache (rds list with $data,
-#                      $counts, $barcodes fields)
+#   A375_PROBE_RDS   — probe-level Seurat (flex_v2_probe_obj_PBS_10k_feat_filt.rds,
+#                      Chen lab servers only)
 #
 # OUTPUT
 #   results/a375_probe_expression_cache.rds
@@ -41,9 +47,10 @@ suppressPackageStartupMessages({
   library(Matrix)
 })
 
-# Set these paths to the data on your system (Chen lab servers)
-A375_PROBE_RDS   <- "/path/to/flex_v2_probe_obj_PBS_10k_feat_filt.rds"
+# Download from Zenodo (https://doi.org/10.5281/zenodo.19363777) and set path:
 A375_PROBE_CACHE <- "/path/to/flex_v2_probe_expr_sparse_cache_10k_feat_filt.rds"
+# Alternatively, if you have the Chen lab probe-level Seurat object:
+A375_PROBE_RDS   <- "/path/to/flex_v2_probe_obj_PBS_10k_feat_filt.rds"
 
 RESULTS_DIR <- "results"
 OUT_RDS     <- file.path(RESULTS_DIR, "a375_probe_expression_cache.rds")
@@ -85,7 +92,9 @@ if (file.exists(A375_PROBE_CACHE)) {
     "A375_PROBE_RDS:   ", A375_PROBE_RDS, "\n",
     "A375_PROBE_CACHE: ", A375_PROBE_CACHE, "\n",
     "Update these paths at the top of this script.\n",
-    "This data is stored on the Chen lab servers and is not publicly available."
+    "Download flex_v2_probe_expr_sparse_cache_10k_feat_filt.rds from Zenodo:\n",
+    "  https://doi.org/10.5281/zenodo.19363777\n",
+    "Then set A375_PROBE_CACHE at the top of this script."
   )
 }
 
