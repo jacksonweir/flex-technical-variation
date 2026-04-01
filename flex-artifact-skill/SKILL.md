@@ -23,88 +23,38 @@ In 10x Genomics Flex v1, probe barcode identity drives substantial spurious diff
 
 **Flex v2**: Probe hybridization is barcode-free; barcoding happens in a separate oligo step. Barcodes appear as values like `A-A01`–`A-H12`. The degree of technical variation depends on whether probe hybridization was bulk or per-sample.
 
-```r
-# Check assay type from barcode naming
-table(obj$probe_barcode)
-```
-
-**CRITICAL — Experimental Design Assessment:**
-
-For detailed scenarios (Flex v1, Flex v2 bulk hyb, Flex v2 independent hyb), and instructions on how to identify which applies to your data, read:
+Check the barcode naming in cell metadata to identify which assay was used. For detailed scenarios (Flex v1, Flex v2 bulk hyb, Flex v2 independent hyb) and how to identify which applies to your data, read:
 `references/experimental-design.md`
 
 ---
 
 ## Step 2 — QC Metrics Per Probe Barcode
 
-Before any DE analysis, verify QC metrics are comparable across barcodes.
-
-```r
-library(dplyr)
-qc_summary <- obj@meta.data %>%
-  group_by(probe_barcode) %>%
-  summarise(
-    n_cells       = n(),
-    median_nCount = median(nCount_RNA),
-    median_nFeat  = median(nFeature_RNA),
-    median_mito   = median(percent.mito),
-    .groups = "drop"
-  )
-print(qc_summary)
-```
-
-Red flags: systematically lower UMI counts or higher mitochondrial reads in specific barcodes. In the paper's VCC dataset, QC metrics per barcode were similar (Supp. Fig. 1), confirming the DE signal is not a QC artifact.
+Before any DE analysis, verify QC metrics (cell count, median UMI, median genes detected, mitochondrial fraction) are comparable across barcodes. Systematically lower UMI counts or higher mitochondrial reads in specific barcodes are red flags. In the paper's VCC dataset, QC metrics per barcode were similar (Supp. Fig. 1), confirming the DE signal is not a QC artifact.
 
 ---
 
 ## Step 3 — Differential Expression Between Probe Barcodes
 
-Run FindAllMarkers (one-vs-all) across all probe barcodes:
+Run FindAllMarkers (one-vs-all, Wilcoxon, `min.pct = 0.1`, `logfc.threshold = 0`) with probe barcode as the identity. Count significant DE genes per barcode at `p_val_adj < 0.05` and `|log2FC| ≥ 0.3`.
 
-```r
-Idents(obj) <- obj$probe_barcode
+Cross-reference your significant DE genes against the paper's supplementary tables to assess overlap with known probe barcode artifacts. Substantial overlap with the VCC (Table 1) or PBMC (Table 2) reference tables is strong evidence of probe barcode confounding.
 
-de_results <- FindAllMarkers(
-  obj,
-  only.pos        = FALSE,
-  min.pct         = 0.1,
-  logfc.threshold = 0,
-  test.use        = "wilcox",
-  verbose         = TRUE
-)
+**Sentinel artifact genes** (recurrently affected across independent datasets): **SRP9, SPCS1, ISCU, RRM2, SLC2A3, ITSN1, PHF6, ADCY2**
 
-# Count significant DE genes per barcode
-sig <- de_results[!is.na(de_results$p_val_adj) &
-                  de_results$p_val_adj < 0.05 &
-                  abs(de_results$avg_log2FC) >= 0.3, ]
-sort(table(sig$cluster))
-```
-
-**Cross-reference with paper's supplementary tables:**
-
-```r
-# Load Flex v1 reference (VCC dataset, Lane 1, all CRISPR perturbations)
-vcc_de <- read.csv("supplementary_tables/Supplementary_Table_1_VCC_Flexv1_FindAllMarkers.csv")
-vcc_sig <- vcc_de[!is.na(vcc_de$p_val_adj) & vcc_de$p_val_adj < 0.05 &
-                  abs(vcc_de$avg_log2FC) >= 0.3, ]
-
-# Check overlap with your DE genes
-overlap <- intersect(unique(sig$gene), unique(vcc_sig$gene))
-cat(sprintf("Your DE genes also in VCC reference: %d\n", length(overlap)))
-```
-
-Substantial overlap with the VCC or PBMC supplementary tables = strong evidence of probe barcode artifacts.
-
-**Sentinel artifact genes** (recurrently affected across datasets): **SRP9, SPCS1, ISCU, RRM2, SLC2A3, ITSN1, PHF6, ADCY2**
+For code, read: `references/analysis-code.md` → Sections: FindAllMarkers, Pairwise DE
 
 ---
 
 ## Step 4 — Quantify Variance Explained (Eta-Squared)
 
-Eta-squared (η²) measures the fraction of total expression variance attributable to probe barcode identity via one-way ANOVA: η² = SS_between / SS_total.
+Eta-squared (η²) measures the fraction of total expression variance attributable to probe barcode identity via one-way ANOVA: η² = SS_between / SS_total. Computed on NTC cells only (biologically equivalent cells, so any variance explained is purely technical). Run separately for probe barcode and lane to compare their magnitudes.
 
 **Threshold from paper: η² ≥ 1% = probe barcode-affected gene**
-Paper benchmark: 519 genes in VCC Flex v1 vs only 27 genes for lane identity.
+
+Paper benchmarks (VCC NTC cells, all 3 lanes, all 16 probe barcodes):
+- **519 genes** with η²_bc ≥ 1%
+- **27 genes** with η²_lane ≥ 1%
 
 For the full η² computation code (sparse matrix algebra, no densification required), read:
 `references/analysis-code.md` → Section: Eta-Squared Computation
@@ -113,17 +63,14 @@ For the full η² computation code (sparse matrix algebra, no densification requ
 
 ## Step 5 — Visualize the Effect
 
-For full plotting code (volcano plots, violin plots, stacked barplots), read:
-`references/analysis-code.md` → Section: Visualization
+Key visualizations from the paper:
+- **Volcano plots** (Fig. 1B, 1C): lane effect vs probe barcode effect side-by-side with shared axes
+- **Violin plots** (Fig. 1D): per-cell expression of top η² genes across barcodes, split by lane — subtle, systematic shifts (no discrete on/off) are characteristic
+- **Stacked barplot** (Fig. 1E): DE gene counts (up/down) per barcode from FindAllMarkers
 
-Quick diagnostic — violin plots of sentinel genes:
+If any sentinel genes (SRP9, SPCS1, ISCU, etc.) appear in your DE results, plotting their expression as violins across barcodes is a quick visual confirmation of the artifact.
 
-```r
-VlnPlot(obj, features = c("SRP9", "SPCS1", "ISCU"),
-        group.by = "probe_barcode", ncol = 3, pt.size = 0)
-```
-
-Subtle, systematic shifts across all barcodes (no discrete on/off pattern) are characteristic of probe barcode technical variation — see Fig. 1D in the paper.
+For full plotting code, read: `references/analysis-code.md` → Section: Visualization
 
 ---
 
@@ -131,8 +78,7 @@ Subtle, systematic shifts across all barcodes (no discrete on/off pattern) are c
 
 If your cells have an independent identity label beyond probe barcode — such as **CRISPR guide assignments** or **hashtag oligonucleotides (HTOs)** from cell hashing — you can directly measure the false discovery proportion (FDP): the fraction of DE genes that are probe barcode artifacts.
 
-For the full FDP analysis workflow and code, read:
-`references/analysis-code.md` → Section: FDP Analysis
+The paper's approach (script `05_compute_fdp_sweep.R`): for each CRISPR target gene, run ground truth DE (NTC vs target cells, both within `TRUTH_BC`) and confounded DE (target cells in `CONFOUNDED_BC` vs NTC cells in `TRUTH_BC`). FDP = false positives / (false positives + true positives) at each |log2FC| threshold.
 
 **Paper benchmarks (BC005 vs BC008, average-effect pair):**
 - |log2FC| ≥ 0.3: median FDP = **67%**
@@ -140,6 +86,8 @@ For the full FDP analysis workflow and code, read:
 - |log2FC| ≥ 1.7: FDP → **0%**
 
 Worst-case pair (BC002 vs BC011): median FDP = **91%** at |log2FC| ≥ 0.3.
+
+For code, read: `references/analysis-code.md` → Section: FDP Analysis
 
 ---
 
