@@ -76,7 +76,7 @@ scripts/figure2/
 The `flex-artifact-skill/` directory contains a structured skill for AI coding agents (Claude Code, GitHub Copilot, Codex, etc.). The skill provides agents with the context they need to:
 
 - Understand what probe barcode-associated technical variation is and how it was characterized in this paper
-- Apply the same analytical approaches (η², FDP sweep, FindAllMarkers, pseudobulk DE) to a user's own Flex dataset
+- Apply the same analytical approaches (η², FDP sweep, FindAllMarkers) to a user's own Flex dataset
 - Assess whether a user's differential expression results are likely inflated by probe barcode artifacts, given their experimental design
 - Interpret findings in light of the paper's benchmarks (FDP curves, sentinel genes, cross-dataset reproducibility)
 - Recommend appropriate mitigation strategies

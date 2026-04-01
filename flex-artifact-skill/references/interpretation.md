@@ -34,7 +34,7 @@ Note: BC005 (truth barcode) vs BC008 (confounded barcode) was selected as repres
 | Experimental design | Assay | Risk | Action |
 |--------------------|-------|------|--------|
 | Each biological condition on a separate probe barcode | Flex v1 | **HIGH** | Do not trust DE without mitigation; median FDP 67–91% at \|log2FC\| 0.3 |
-| Biological conditions split across multiple barcodes (balanced) | Flex v1 | **MEDIUM** | Include probe barcode as covariate; use pseudobulk methods |
+| Biological conditions split across multiple barcodes (balanced) | Flex v1 | **MEDIUM** | Include probe barcode as covariate (`latent.vars` in FindMarkers LR test) |
 | Same biological condition in all barcodes (NTC/superloading) | Flex v1 | N/A — pure artifact | Use as negative control to characterize the artifact |
 | Each condition on separate barcode, independent probe hyb | Flex v2 | **REDUCED** | Check empirically; mitochondrial and housekeeping genes most at risk |
 | Cells pooled before probe hyb, then split and barcoded | Flex v2 | **MINIMAL** | Proceed normally; run a quick DE check to confirm |
@@ -77,32 +77,7 @@ de_corrected <- FindMarkers(
 
 **Note:** The paper found that UMI correction via LR test does not fully eliminate the artifact (Spearman ρ = 0.82 between corrected and uncorrected log2FC for affected genes). Use with caution.
 
-### 2. Pseudobulk methods with blocking factor
-
-```r
-library(DESeq2)
-
-# Aggregate counts per (sample, barcode) combination
-# then use barcode as blocking factor in the model
-
-# Create pseudobulk counts
-pseudo_counts <- AggregateExpression(obj,
-  assays = "RNA",
-  return.seurat = FALSE,
-  group.by = c("sample_id", "probe_barcode")
-)$RNA
-
-# DESeq2 with probe_barcode as blocking factor
-dds <- DESeqDataSetFromMatrix(
-  countData = pseudo_counts,
-  colData   = sample_metadata,
-  design    = ~ probe_barcode + condition
-)
-dds <- DESeq(dds)
-res <- results(dds, contrast = c("condition", "A", "B"))
-```
-
-### 3. Raise the log2FC threshold
+### 2. Raise the log2FC threshold
 
 Based on FDP sweep analysis: the artifact contributes minimally above |log2FC| = 1.7 in Flex v1.
 
@@ -112,7 +87,7 @@ Based on FDP sweep analysis: the artifact contributes minimally above |log2FC| =
 
 This is a conservative but effective filter for exploratory analyses.
 
-### 4. Experimental design correction (preferred)
+### 3. Experimental design correction (preferred)
 
 If possible, redesign the experiment:
 - Use Flex v2 with bulk probe hybridization (Scenario B) — minimal artifact

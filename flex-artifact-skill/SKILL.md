@@ -160,7 +160,7 @@ For the full interpretation table (risk by experimental design), mitigation stra
 **Minimal mitigation if confounded:**
 - Use `latent.vars = "probe_barcode"` with `test.use = "LR"` in FindMarkers
 - Apply |log2FC| ≥ 1.7 threshold (FDP approaches 0% in paper benchmarks)
-- Use pseudobulk methods (DESeq2, edgeR) with probe barcode as blocking factor
+- Redesign: use Flex v2 with bulk probe hybridization, or distribute conditions across barcodes
 
 ---
 
