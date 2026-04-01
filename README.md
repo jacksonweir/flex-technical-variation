@@ -23,7 +23,7 @@ All required data files and download instructions are in [`data/README.md`](data
 | VCC Flex v1 (Arc Institute Virtual Cell Challenge) | [arc-virtual-cell-atlas](https://github.com/ArcInstitute/arc-virtual-cell-atlas) | 1B–1F, 1I, 2D–2E |
 | 10x PBMC 320k 16-plex GEM-X Flex | [10x Genomics website](https://www.10xgenomics.com/datasets/320k_Human_PBMCs_Sub_Pool_16-plex_GEM-X_FLEX) | 1I |
 | A375 Flex v2 + probe expression caches | [Zenodo 10.5281/zenodo.19363777](https://zenodo.org/records/19363777) | 2B–2F |
-| Flex v1 probe set manifest (v1.0.1) | 10x Genomics support site | 2D |
+| Flex v1 probe set manifest (v1.1.0) | 10x Genomics support site | 2D |
 | Flex v2 probe set manifest (v2.0.0) | 10x Genomics support site | 2D |
 
 ## Reproducing the figures

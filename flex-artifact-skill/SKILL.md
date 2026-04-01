@@ -178,10 +178,12 @@ For the full interpretation table (risk by experimental design), mitigation stra
 
 The paper's FindAllMarkers results for three datasets are in `supplementary_tables/`:
 
-| File | Dataset | Assay |
-|------|---------|-------|
-| `Supplementary_Table_1_VCC_Flexv1_FindAllMarkers.csv` | VCC (Arc Institute) | Flex v1, NTC cells, Lane 1 |
-| `Supplementary_Table_2_PBMC_Flexv1_FindAllMarkers.csv` | 10x PBMC 320k | Flex v1 |
-| `Supplementary_Table_3_A375_Flexv2_FindAllMarkers.csv` | A375 ligand dictionary | Flex v2, 8 conditions |
+| File | Dataset | Cells used |
+|------|---------|------------|
+| `Supplementary_Table_1_VCC_Flexv1_FindAllMarkers.csv` | VCC Flex v1, Lane 1 | All Lane 1 cells (all CRISPR perturbations, no guide filter); 16 barcodes |
+| `Supplementary_Table_2_PBMC_Flexv1_FindAllMarkers.csv` | 10x PBMC 320k Flex v1 | All PBMC cells; 16 barcodes; FindAllMarkers one-vs-all |
+| `Supplementary_Table_3_A375_Flexv2_FindAllMarkers.csv` | A375 Flex v2 | All cells across all conditions (8 ligands + PBS); 16 barcodes (2 per condition) |
 
 Columns: `p_val, avg_log2FC, pct.1, pct.2, p_val_adj, cluster (probe barcode), gene`
+
+**Note:** Table 2 is the cleanest reference for identifying pure probe barcode artifacts — PBMC cells carry no CRISPR perturbations, so any DE between barcodes in this dataset is unambiguously technical. Table 1 includes all CRISPR guide populations, so a gene appearing in Table 1 could in principle be a genuine guide effect rather than a barcode artifact; cross-check against Table 2 or the sentinel gene list to confirm.
