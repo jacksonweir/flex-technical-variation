@@ -1,16 +1,20 @@
 # flex-technical-variation
 
-Code for reproducing all figures in:
-
 **"Sample barcoding-associated technical variation in probe-based single-cell RNA sequencing"**
+Weir, Krebs, Chen 2026
 
 In 10x Genomics Flex v1, probe set barcode identity drives substantial technical variation in gene expression — reproducible across lanes and datasets — that generates a high rate of false positive DE genes when barcodes are confounded with biological sample identity. The Flex v2 assay, which decouples sample barcoding from probe hybridization, significantly reduces this artifact.
+
+This repository contains two resources:
+
+1. **Analysis scripts** to reproduce Figures 1 and 2 from the paper
+2. **`flex-artifact-skill/`** — a structured skill for AI coding agents (Claude Code, Codex, etc.) to help users apply the paper's analytical approaches to their own Flex data and assess whether their DE results are inflated by probe barcode artifacts
 
 ---
 
 ## Overview
 
-This repository contains the scripts to reproduce Figures 1 and 2 from the paper. The analysis characterizes technical gene expression variation associated with probe barcode identity in 10x Genomics Flex (Fixed RNA Profiling) single-cell RNA-seq data, and compares the magnitude of this artifact between Flex v1 and Flex v2.
+The analysis characterizes technical gene expression variation associated with probe barcode identity in 10x Genomics Flex (Fixed RNA Profiling) single-cell RNA-seq data, and compares the magnitude of this artifact between Flex v1 and Flex v2.
 
 ## Data
 
