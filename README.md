@@ -71,6 +71,25 @@ scripts/figure2/
     └── fig2f_a375_probe_expression.R            # Fig 2F
 ```
 
-## Output
+## Agentic Skill — `flex-artifact-skill`
 
-All intermediate results are written to `results/`. All figures are saved as Cairo PDF to `results/figures/`.
+The `flex-artifact-skill/` directory contains a structured skill for AI coding agents (Claude Code, GitHub Copilot, Codex, etc.). The skill provides agents with the context they need to:
+
+- Understand what probe barcode-associated technical variation is and how it was characterized in this paper
+- Apply the same analytical approaches (η², FDP sweep, FindAllMarkers, pseudobulk DE) to a user's own Flex dataset
+- Assess whether a user's differential expression results are likely inflated by probe barcode artifacts, given their experimental design
+- Interpret findings in light of the paper's benchmarks (FDP curves, sentinel genes, cross-dataset reproducibility)
+- Recommend appropriate mitigation strategies
+
+The skill follows the [Claude skill format](https://github.com/K-Dense-AI/claude-scientific-skills): a concise `SKILL.md` that an agent loads when the topic is relevant, with detailed reference files in `references/` that are read on demand to avoid bloating the context window.
+
+```
+flex-artifact-skill/
+├── SKILL.md                          # Overview, 7-step workflow, quick reference tables
+└── references/
+    ├── experimental-design.md        # Flex v1 vs v2 chemistry, scenarios, how to identify your design
+    ├── analysis-code.md              # Full R/Python code: η², FDP, DE, all visualizations
+    └── interpretation.md             # Risk table, paper benchmarks, sentinel genes, mitigation strategies
+```
+
+The supplementary DE tables (`supplementary_tables/`) are also included for direct cross-referencing: overlap between a user's DE genes and these reference tables is strong evidence of probe barcode confounding.
