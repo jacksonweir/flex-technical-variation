@@ -1,6 +1,6 @@
 ---
-name: probe-barcode-variation
-description: Assesses probe barcode-associated technical variation in 10x Genomics Flex (Fixed RNA Profiling) scRNA-seq data. Use when user has Flex data with multiple probe barcodes and wants to check whether DE results are inflated by technical artifacts, or asks about probe barcode effects, sample barcoding variation, Flex v1 vs v2 technical differences, or spurious differential expression between barcodes. Based on the paper "Sample barcoding-associated technical variation in probe-based single-cell RNA sequencing" (Weir, Krebs, Chen 2026). Repo: github.com/jacksonweir/flex-technical-variation
+name: flex-variation-skill
+description: Assesses probe barcode-associated technical variation in 10x Genomics Flex (Fixed RNA Profiling) scRNA-seq data. Use when user has Flex data with multiple probe barcodes and wants to check whether DE results are inflated by technical artifacts, or asks about probe barcode effects, sample barcoding variation, Flex v1 vs v2 technical differences, or spurious differential expression between barcodes. Based on Weir, Krebs, Chen 2026 (github.com/jacksonweir/flex-technical-variation).
 metadata:
   author: Jackson Weir
   version: 1.0.0
