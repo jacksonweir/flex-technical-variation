@@ -8,9 +8,6 @@
 # in A375 Flex v2 allows direct comparison of the probe barcode artifact
 # magnitude between kit versions.
 #
-# Run with mel_spatial conda env (has qs + Seurat 5):
-#   conda run -n mel_spatial Rscript scripts/figure2/00_prep_violin_data_flexv2.R
-#
 # INPUT
 #   results/seurat_a375_flexv2_filtered.qs
 #     — from 08_setup_a375_seurat.R, OR place the Zenodo file
@@ -20,6 +17,12 @@
 # OUTPUT
 #   results/a375_flexv2_violin_data.csv
 #     long-format: cell, gene, expression, probe_barcode
+#
+# USAGE
+#   Rscript scripts/figure2/00_prep_violin_data_flexv2.R
+#
+# PACKAGES
+#   Seurat, qs, Matrix, dplyr, tidyr, tibble
 # ==============================================================================
 
 suppressPackageStartupMessages({

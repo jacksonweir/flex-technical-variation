@@ -27,6 +27,8 @@
 # USAGE
 #   Rscript scripts/figure1/plot/fig1bc_volcanos.R
 #
+# PACKAGES
+#   ggplot2, ggthemes, ggrepel
 # ==============================================================================
 
 suppressPackageStartupMessages({

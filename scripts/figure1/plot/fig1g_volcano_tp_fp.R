@@ -27,6 +27,8 @@
 # USAGE
 #   Rscript scripts/figure1/plot/fig1g_volcano_tp_fp.R
 #
+# PACKAGES
+#   ggplot2, ggrepel, dplyr
 # ==============================================================================
 
 suppressPackageStartupMessages({

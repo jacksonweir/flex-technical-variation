@@ -22,6 +22,8 @@
 # USAGE
 #   Rscript scripts/figure1/plot/fig1i_cross_dataset_scatter.R
 #
+# PACKAGES
+#   ggplot2, ggrepel, dplyr
 # ==============================================================================
 
 suppressPackageStartupMessages({

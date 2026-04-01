@@ -22,6 +22,8 @@
 # USAGE
 #   Rscript scripts/figure1/01_setup_vcc_seurat.R
 #
+# PACKAGES
+#   Seurat, qs, tibble
 # ==============================================================================
 
 suppressPackageStartupMessages({

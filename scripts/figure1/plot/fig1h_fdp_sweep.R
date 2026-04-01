@@ -19,6 +19,8 @@
 # USAGE
 #   Rscript scripts/figure1/plot/fig1h_fdp_sweep.R
 #
+# PACKAGES
+#   ggplot2, dplyr
 # ==============================================================================
 
 suppressPackageStartupMessages({

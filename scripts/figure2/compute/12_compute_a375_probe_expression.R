@@ -19,9 +19,8 @@
 # is publicly available from the Zenodo deposit (https://doi.org/10.5281/zenodo.19363777).
 # Download that file and set A375_PROBE_CACHE below to its local path.
 #
-# IMPORTANT: This script must run under the mel_spatial conda environment
-# (R 4.5.2 + Matrix 1.7+). Using trekker (R 4.3.3) drops dgCMatrix rownames.
-#   conda run -n mel_spatial Rscript scripts/figure2/compute/12_compute_a375_probe_expression.R
+# IMPORTANT: Requires Matrix >= 1.7 (R 4.5+). Older Matrix versions may drop
+# dgCMatrix rownames when loading the probe expression cache.
 #
 # INPUT  (user must set paths)
 #   A375_PROBE_CACHE — sparse expression cache from Zenodo:
@@ -40,6 +39,8 @@
 # USAGE
 #   Rscript scripts/figure2/compute/12_compute_a375_probe_expression.R
 #
+# PACKAGES
+#   Seurat, Matrix
 # ==============================================================================
 
 suppressPackageStartupMessages({

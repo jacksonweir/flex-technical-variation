@@ -30,7 +30,10 @@
 #     columns: gene_name, n_probe_ids, is_de
 #
 # USAGE
-#   conda run -n trekker Rscript scripts/figure2/compute/13_compute_probe_histogram_data.R
+#   Rscript scripts/figure2/compute/13_compute_probe_histogram_data.R
+#
+# PACKAGES
+#   Seurat, qs, Matrix, dplyr
 # ==============================================================================
 
 suppressPackageStartupMessages({

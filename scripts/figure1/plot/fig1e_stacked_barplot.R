@@ -20,6 +20,8 @@
 # USAGE
 #   Rscript scripts/figure1/plot/fig1e_stacked_barplot.R
 #
+# PACKAGES
+#   dplyr, tidyr, ggplot2, ggthemes
 # ==============================================================================
 
 suppressPackageStartupMessages({

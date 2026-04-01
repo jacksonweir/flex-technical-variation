@@ -17,6 +17,8 @@
 # USAGE
 #   Rscript scripts/figure1/plot/fig1f_ranked_eta_sq.R
 #
+# PACKAGES
+#   ggplot2, ggthemes, ggrepel, dplyr, scales
 # ==============================================================================
 
 suppressPackageStartupMessages({

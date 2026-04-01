@@ -27,6 +27,8 @@
 # USAGE
 #   Rscript scripts/figure2/compute/10_compute_variance_explained_a375.R
 #
+# PACKAGES
+#   Seurat, qs, Matrix, dplyr, readr
 # ==============================================================================
 
 suppressPackageStartupMessages({

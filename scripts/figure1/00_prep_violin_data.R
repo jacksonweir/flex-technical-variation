@@ -4,9 +4,6 @@
 # Extract per-cell expression of the top two eta²-ranked genes (SRP9, SPCS1)
 # from NTC cells across all 3 VCC lanes for Figure 1D violin plots.
 #
-# Run with mel_spatial conda env (has qs + Seurat 5):
-#   conda run -n mel_spatial Rscript scripts/figure1/00_prep_violin_data.R
-#
 # INPUT
 #   results/seurat_vcc_annotated.qs        — from 01_setup_vcc_seurat.R
 #   results/variance_explained_probe_barcode_NTC.csv  — from 04_compute_variance_explained.R
@@ -18,6 +15,12 @@
 # NOTE: Run 01_setup_vcc_seurat.R and 04_compute_variance_explained.R first.
 #       04 must complete before this script to confirm gene identities, but
 #       you can also set TOP_GENES explicitly below if needed.
+#
+# USAGE
+#   Rscript scripts/figure1/00_prep_violin_data.R
+#
+# PACKAGES
+#   Seurat, qs, Matrix, dplyr, tidyr, tibble
 # ==============================================================================
 
 suppressPackageStartupMessages({

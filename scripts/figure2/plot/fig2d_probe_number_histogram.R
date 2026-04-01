@@ -20,8 +20,10 @@
 #   results/figures/fig2d_probe_number_histogram_v1_vs_v2.pdf
 #
 # USAGE
-#   conda run -n trekker Rscript scripts/figure2/plot/fig2d_probe_number_histogram.R
+#   Rscript scripts/figure2/plot/fig2d_probe_number_histogram.R
 #
+# PACKAGES
+#   dplyr, ggplot2, patchwork
 # ==============================================================================
 
 suppressPackageStartupMessages({

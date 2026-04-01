@@ -22,6 +22,8 @@
 # USAGE
 #   Rscript scripts/figure1/compute/07_compute_pbmc_de.R
 #
+# PACKAGES
+#   Seurat, qs
 # ==============================================================================
 
 suppressPackageStartupMessages({

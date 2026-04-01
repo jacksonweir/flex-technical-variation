@@ -13,10 +13,8 @@
 # The paper features SRP9 (highest eta² gene) and SPCS1 (second highest).
 # Set GENES_TO_PLOT <- NULL to plot all DE genes with >= MIN_PROBES probes.
 #
-# NOTE: The probe expression cache must be loaded under the mel_spatial conda
-# environment (R 4.5.2 + Matrix 1.7+). Loading it with an older Matrix version
-# (trekker, R 4.3.3) drops dgCMatrix rownames. Run this script with:
-#   conda run -n mel_spatial Rscript scripts/figure2/plot/fig2e_vcc_probe_expression.R
+# NOTE: Requires Matrix >= 1.7 (R 4.5+). Older Matrix versions may drop
+# dgCMatrix rownames when loading the probe expression cache.
 #
 # INPUT
 #   results/vcc_probe_expression_cache.rds        — from 11_compute_vcc_probe_expression.R
@@ -24,7 +22,7 @@
 #
 #   The cache file corresponds to vcc_probe_expr_sparse_cache_10k_feat_filt.rds
 #   from the Zenodo deposit (https://doi.org/10.5281/zenodo.19363777). Download
-#   and process with 11_compute_vcc_probe_expression.R (mel_spatial env), which
+#   and process with 11_compute_vcc_probe_expression.R, which
 #   saves a copy to results/vcc_probe_expression_cache.rds.
 #
 # OUTPUT
@@ -32,8 +30,10 @@
 #   results/figures/fig2e_SPCS1_probe_expression_vcc.pdf
 #
 # USAGE
-#   conda run -n mel_spatial Rscript scripts/figure2/plot/fig2e_vcc_probe_expression.R
+#   Rscript scripts/figure2/plot/fig2e_vcc_probe_expression.R
 #
+# PACKAGES
+#   ggplot2, dplyr, tidyr, Matrix, dittoSeq, scales
 # ==============================================================================
 
 suppressPackageStartupMessages({

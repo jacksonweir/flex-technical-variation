@@ -26,6 +26,8 @@
 # USAGE
 #   Rscript scripts/figure1/compute/02_compute_pairwise_de.R
 #
+# PACKAGES
+#   Seurat, qs
 # ==============================================================================
 
 suppressPackageStartupMessages({

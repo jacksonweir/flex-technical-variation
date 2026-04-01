@@ -9,8 +9,7 @@
 # colored by sequencing lane.
 #
 # Reads from the pre-extracted CSV (no Seurat required at plot time). Run
-# scripts/figure1/00_prep_violin_data.R first (mel_spatial env) to generate
-# the input CSV.
+# scripts/figure1/00_prep_violin_data.R first to generate the input CSV.
 #
 # INPUT
 #   results/vcc_ntc_violin_data.csv              — from 00_prep_violin_data.R
@@ -21,8 +20,10 @@
 #   results/figures/fig1d_SPCS1.pdf
 #
 # USAGE
-#   conda run -n trekker Rscript scripts/figure1/plot/fig1d_violin_top_genes.R
+#   Rscript scripts/figure1/plot/fig1d_violin_top_genes.R
 #
+# PACKAGES
+#   ggplot2, dplyr
 # ==============================================================================
 
 suppressPackageStartupMessages({

@@ -22,6 +22,8 @@
 # USAGE
 #   Rscript scripts/figure1/compute/03_compute_findallmarkers_lane1.R
 #
+# PACKAGES
+#   Seurat, qs
 # ==============================================================================
 
 suppressPackageStartupMessages({

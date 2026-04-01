@@ -25,8 +25,10 @@
 #   results/figures/fig2b_stacked_barplot_DE_per_probe_barcode_a375.pdf
 #
 # USAGE
-#   conda run -n trekker Rscript scripts/figure2/plot/fig2b_stacked_barplot.R
+#   Rscript scripts/figure2/plot/fig2b_stacked_barplot.R
 #
+# PACKAGES
+#   dplyr, tidyr, ggplot2, ggthemes
 # ==============================================================================
 
 suppressPackageStartupMessages({

@@ -28,6 +28,8 @@
 # USAGE
 #   Rscript scripts/figure2/08_setup_a375_seurat.R
 #
+# PACKAGES
+#   Seurat, qs, dplyr
 # ==============================================================================
 
 suppressPackageStartupMessages({

@@ -30,6 +30,8 @@
 # USAGE
 #   Rscript scripts/figure1/compute/06_setup_pbmc_seurat.R
 #
+# PACKAGES
+#   Seurat, qs, tibble
 # ==============================================================================
 
 suppressPackageStartupMessages({

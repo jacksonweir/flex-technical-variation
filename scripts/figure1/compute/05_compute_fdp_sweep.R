@@ -39,6 +39,8 @@
 # USAGE
 #   Rscript scripts/figure1/compute/05_compute_fdp_sweep.R
 #
+# PACKAGES
+#   Seurat, qs, dplyr
 # ==============================================================================
 
 suppressPackageStartupMessages({

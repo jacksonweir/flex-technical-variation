@@ -11,8 +11,7 @@
 # between kit versions.
 #
 # Reads from the pre-extracted CSV (no Seurat required at plot time). Run
-# scripts/figure2/00_prep_violin_data_flexv2.R first (mel_spatial env) to
-# generate the input CSV.
+# scripts/figure2/00_prep_violin_data_flexv2.R first to generate the input CSV.
 #
 # INPUT
 #   results/a375_flexv2_violin_data.csv   — from 00_prep_violin_data_flexv2.R
@@ -22,8 +21,10 @@
 #   results/figures/fig2c_SPCS1.pdf
 #
 # USAGE
-#   conda run -n trekker Rscript scripts/figure2/plot/fig2c_violin_top_genes.R
+#   Rscript scripts/figure2/plot/fig2c_violin_top_genes.R
 #
+# PACKAGES
+#   ggplot2, dplyr
 # ==============================================================================
 
 suppressPackageStartupMessages({
@@ -39,7 +40,7 @@ VIOLIN_CSV <- file.path(RESULTS_DIR, "a375_flexv2_violin_data.csv")
 
 if (!file.exists(VIOLIN_CSV)) {
   stop("Violin data not found: ", VIOLIN_CSV,
-       "\nRun scripts/figure2/00_prep_violin_data_flexv2.R first (mel_spatial env).")
+       "\nRun scripts/figure2/00_prep_violin_data_flexv2.R first.")
 }
 
 # ==============================================================================

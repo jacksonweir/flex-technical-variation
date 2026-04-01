@@ -21,9 +21,8 @@
 # Seurat object (VCC_PROBE_RDS) is an alternative source on the Chen lab servers;
 # the Zenodo cache is preferred for reproducibility.
 #
-# IMPORTANT: This script must run under the mel_spatial conda environment
-# (R 4.5.2 + Matrix 1.7+). Using trekker (R 4.3.3) drops dgCMatrix rownames.
-#   conda run -n mel_spatial Rscript scripts/figure2/compute/11_compute_vcc_probe_expression.R
+# IMPORTANT: Requires Matrix >= 1.7 (R 4.5+). Older Matrix versions may drop
+# dgCMatrix rownames when loading the probe expression cache.
 #
 # INPUT  (user must set paths)
 #   VCC_PROBE_CACHE — sparse expression cache from Zenodo:
@@ -42,6 +41,8 @@
 # USAGE
 #   Rscript scripts/figure2/compute/11_compute_vcc_probe_expression.R
 #
+# PACKAGES
+#   Seurat, Matrix
 # ==============================================================================
 
 suppressPackageStartupMessages({

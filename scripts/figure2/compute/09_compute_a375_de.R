@@ -22,6 +22,8 @@
 # USAGE
 #   Rscript scripts/figure2/compute/09_compute_a375_de.R
 #
+# PACKAGES
+#   Seurat, qs
 # ==============================================================================
 
 suppressPackageStartupMessages({
