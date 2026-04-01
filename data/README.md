@@ -28,7 +28,7 @@ Used by: Fig 1I.
 
 Download from the [10x Genomics support site](https://www.10xgenomics.com/support/software/cell-ranger/downloads) and save to `data/`:
 
-- **Chromium Human Transcriptome Probe Set v1.0.1** → `data/vcc_probe_manifest.csv`
-- **Chromium Human Transcriptome Probe Set v2.0.0** → `data/a375_v2_probe_manifest.csv`
+- **Chromium Human Transcriptome Probe Set v1.1.0 (GRCh38-2024-A)** → `data/vcc_probe_manifest.csv`
+- **Chromium Human Transcriptome Probe Set v2.0.0 (GRCh38-2024-A)** → `data/a375_v2_probe_manifest.csv`
 
 Used by: `scripts/figure2/compute/13_compute_probe_histogram_data.R` → Fig 2D.
