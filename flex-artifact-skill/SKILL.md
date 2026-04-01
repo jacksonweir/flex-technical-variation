@@ -83,7 +83,7 @@ sort(table(sig$cluster))
 **Cross-reference with paper's supplementary tables:**
 
 ```r
-# Load Flex v1 reference (VCC dataset, NTC cells, Lane 1)
+# Load Flex v1 reference (VCC dataset, Lane 1, all CRISPR perturbations)
 vcc_de <- read.csv("supplementary_tables/Supplementary_Table_1_VCC_Flexv1_FindAllMarkers.csv")
 vcc_sig <- vcc_de[!is.na(vcc_de$p_val_adj) & vcc_de$p_val_adj < 0.05 &
                   abs(vcc_de$avg_log2FC) >= 0.3, ]

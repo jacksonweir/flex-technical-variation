@@ -75,7 +75,7 @@ de_corrected <- FindMarkers(
 )
 ```
 
-**Note:** The paper found that UMI correction via LR test does not fully eliminate the artifact (Spearman ρ = 0.82 between corrected and uncorrected log2FC for affected genes). Use with caution.
+**Note:** This LR test approach is not in the paper's analysis scripts — it is a standard Seurat method for correcting batch covariates. Use with caution; probe barcode effects are global and may not be fully removed by UMI-level regression.
 
 ### 2. Raise the log2FC threshold
 
