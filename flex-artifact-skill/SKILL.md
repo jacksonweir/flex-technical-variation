@@ -118,7 +118,7 @@ For the full interpretation table (risk by experimental design), mitigation stra
 |------|-------------|
 | `references/experimental-design.md` | To understand Flex v1 vs v2 chemistry, the three experimental scenarios, and how to identify which applies to your data |
 | `references/analysis-code.md` | For complete R code: η² computation, FDP analysis, pairwise DE, all visualizations; Python code for probe-level h5 analysis |
-| `references/interpretation.md` | For detailed risk table, paper benchmark numbers, sentinel gene lists, mitigation strategies, cross-dataset reproducibility |
+| `references/interpretation.md` | For detailed risk table, paper benchmark numbers, problematic gene lists, mitigation strategies, cross-dataset reproducibility |
 
 ---
 
@@ -134,4 +134,4 @@ The paper's FindAllMarkers results for three datasets are in `supplementary_tabl
 
 Columns: `p_val, avg_log2FC, pct.1, pct.2, p_val_adj, cluster (probe barcode), gene`
 
-**Note:** Table 2 is the cleanest reference for identifying pure probe barcode artifacts — PBMC cells carry no CRISPR perturbations, so any DE between barcodes in this dataset is unambiguously technical. Table 1 includes all CRISPR guide populations, so a gene appearing in Table 1 could in principle be a genuine guide effect rather than a barcode artifact; cross-check against Table 2 or the sentinel gene list to confirm.
+**Note:** Table 2 is the cleanest reference for identifying pure probe barcode artifacts — PBMC cells carry no CRISPR perturbations, so any DE between barcodes in this dataset is unambiguously technical. Table 1 includes all CRISPR guide populations, so a gene appearing in Table 1 could in principle be a genuine guide effect rather than a barcode artifact; cross-check against Table 2 or the problematic gene list to confirm.

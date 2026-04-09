@@ -81,7 +81,7 @@ The `flex-artifact-skill/` directory contains a structured skill for AI coding a
 - Understand what probe barcode-associated technical variation is and how it was characterized in this paper
 - Apply the same analytical approaches (η², FDP sweep, FindAllMarkers) to a user's own Flex dataset
 - Assess whether a user's differential expression results are likely inflated by probe barcode artifacts, given their experimental design
-- Interpret findings in light of the paper's benchmarks (FDP curves, sentinel genes, cross-dataset reproducibility)
+- Interpret findings in light of the paper's benchmarks (FDP curves, problematic genes, cross-dataset reproducibility)
 - Recommend appropriate mitigation strategies
 
 The skill follows the [Claude skill format](https://github.com/K-Dense-AI/claude-scientific-skills): a concise `SKILL.md` that an agent loads when the topic is relevant, with detailed reference files in `references/` that are read on demand to avoid bloating the context window.
@@ -92,7 +92,7 @@ flex-artifact-skill/
 └── references/
     ├── experimental-design.md        # Flex v1 vs v2 chemistry, scenarios, how to identify your design
     ├── analysis-code.md              # Full R/Python code: η², FDP, DE, all visualizations
-    └── interpretation.md             # Risk table, paper benchmarks, sentinel genes, mitigation strategies
+    └── interpretation.md             # Risk table, paper benchmarks, problematic genes, mitigation strategies
 ```
 
 The supplementary DE tables (`supplementary_tables/`) are also included for direct cross-referencing: overlap between a user's DE genes and these reference tables is strong evidence of probe barcode confounding.

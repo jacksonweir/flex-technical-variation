@@ -20,7 +20,7 @@ Note: BC005 (truth barcode) vs BC008 (confounded barcode) was selected as repres
 
 - Substantially fewer DE genes per barcode than Flex v1 (see Fig. 2B vs Fig. 1E)
 - Some residual DE, especially for mitochondrial genes and housekeeping genes
-- Sentinel genes most affected in Flex v2: check `supplementary_tables/Supplementary_Table_3_A375_Flexv2_FindAllMarkers.csv`
+- Problematic genes most affected in Flex v2: check `supplementary_tables/Supplementary_Table_3_A375_Flexv2_FindAllMarkers.csv`
 
 ### Flex v2 — Bulk Probe Hybridization (Supp. Fig. 5)
 
