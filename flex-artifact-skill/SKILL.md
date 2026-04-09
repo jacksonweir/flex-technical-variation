@@ -21,7 +21,7 @@ In 10x Genomics Flex v1, probe barcode identity drives substantial spurious diff
 
 **Flex v1**: Probe barcode identity is embedded in the probe hybridization chemistry. Barcodes appear as values like `BC001`–`BC016` in cell metadata. Technical variation between barcodes is inherent. **Any DE comparing conditions assigned to different barcodes will be confounded.**
 
-**Flex v2**: Probe hybridization is barcode-free; barcoding happens in a separate oligo step. Barcodes appear as values like `A-A01`–`A-H12`. The degree of technical variation depends on whether probe hybridization was bulk or per-sample.
+**Flex v2**: Probe hybridization is barcode-free; barcoding happens in a separate oligo step. Barcodes follow a plate-well format (e.g. `A-A01`, `B-C04`) with the plate prefix varying depending on the plate used. The degree of technical variation depends on whether probe hybridization was bulk or per-sample.
 
 Check the barcode naming in cell metadata to identify which assay was used. For detailed scenarios (Flex v1, Flex v2 bulk hyb, Flex v2 independent hyb) and how to identify which applies to your data, read:
 `references/experimental-design.md`
@@ -40,7 +40,7 @@ Run FindAllMarkers (one-vs-all, Wilcoxon, `min.pct = 0.1`, `logfc.threshold = 0`
 
 Cross-reference your significant DE genes against the paper's supplementary tables to assess overlap with known probe barcode artifacts. Substantial overlap with the VCC (Table 1) or PBMC (Table 2) reference tables is strong evidence of probe barcode confounding.
 
-**Sentinel artifact genes** (recurrently affected across independent datasets): **SRP9, SPCS1, ISCU, RRM2, SLC2A3, ITSN1, PHF6, ADCY2**
+**Recurrently probe barcode-affected genes** (high η², reproducible across independent datasets): **SRP9, SPCS1, ISCU, RRM2, SLC2A3, ITSN1, PHF6, ADCY2**
 
 For code, read: `references/analysis-code.md` → Sections: FindAllMarkers, Pairwise DE
 
@@ -68,7 +68,7 @@ Key visualizations from the paper:
 - **Violin plots** (Fig. 1D): per-cell expression of top η² genes across barcodes, split by lane — subtle, systematic shifts (no discrete on/off) are characteristic
 - **Stacked barplot** (Fig. 1E): DE gene counts (up/down) per barcode from FindAllMarkers
 
-If any sentinel genes (SRP9, SPCS1, ISCU, etc.) appear in your DE results, plotting their expression as violins across barcodes is a quick visual confirmation of the artifact.
+If any of the recurrently probe barcode-affected genes (SRP9, SPCS1, ISCU, etc.) appear in your DE results, plotting their expression as violins across barcodes is a quick visual confirmation of the artifact.
 
 For full plotting code, read: `references/analysis-code.md` → Section: Visualization
 

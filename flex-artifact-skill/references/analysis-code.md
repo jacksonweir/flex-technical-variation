@@ -465,54 +465,41 @@ Paper benchmark: VCC vs PBMC BC002 vs BC011 Spearman ρ = **0.73**, p < 0.01.
 
 ---
 
-## Probe-Level h5 Analysis (Advanced — Python)
+## Probe-Level Expression Analysis (Advanced — R)
 
-For investigating probe-level mechanisms using the CellRanger `molecule_info.h5` output.
-Adapted from `scripts/figure2/compute/11_compute_vcc_probe_expression.R` (R) and
-the Python preprocessing approach used in the analysis notebooks.
+For investigating probe-level mechanisms, the paper uses probe-level expression matrices
+where each row is a unique probe (e.g. `ENSG00000143742|SRP9|ac81972`) rather than a gene.
+These are built from CellRanger's `raw_probe_bc_matrix` output (loaded into Seurat with probe
+IDs as features), then saved as compact RDS caches.
 
-```python
-import h5py
-import numpy as np
-from scipy.sparse import csr_matrix
+Adapted from `scripts/figure2/compute/11_compute_vcc_probe_expression.R` (VCC) and
+`scripts/figure2/compute/12_compute_a375_probe_expression.R` (A375).
 
-CHUNK_SIZE = 50_000_000  # avoid memory overload — full file is ~155GB uncompressed
+Pre-built expression caches for the paper's two datasets are available from Zenodo
+(https://doi.org/10.5281/zenodo.19363777):
+- `vcc_probe_expr_sparse_cache_10k_feat_filt.rds` — VCC Flex v1, NTC cells, Lane 1
+- `flex_v2_probe_expr_sparse_cache_10k_feat_filt.rds` — A375 Flex v2, PBS cells
 
-h5_path = "path/to/sample_molecule_info.h5"
+Each cache is an RDS list with fields `$data` (normalised, probes × cells),
+`$counts` (raw counts), and `$barcodes` (probe barcode per cell).
 
-with h5py.File(h5_path, "r") as f:
-    # IMPORTANT: use probes/probe_id (not features/id)
-    # probes/probe_id = full probe IDs like "ENSG00000000003-TSPAN6-8eab823"
-    # features/id    = Ensembl gene IDs only (fewer rows, no probe-level info)
-    probe_ids   = f["probes/probe_id"][:].astype(str)
-    barcodes_h5 = f["barcodes"][:].astype(str)
+```r
+library(Matrix)
 
-    n_total = f["count"].shape[0]
-    probe_idx_all, barcode_idx_all, count_all = [], [], []
+# Download from Zenodo and set path:
+cache_path <- "/path/to/vcc_probe_expr_sparse_cache_10k_feat_filt.rds"
 
-    for start in range(0, n_total, CHUNK_SIZE):
-        end = min(start + CHUNK_SIZE, n_total)
-        probe_idx_all.append(f["probe_idx"][start:end])
-        barcode_idx_all.append(f["barcode_idx"][start:end])
-        count_all.append(f["count"][start:end])
+cache    <- readRDS(cache_path)
+expr     <- cache$data      # dgCMatrix: probes x cells
+barcodes <- cache$barcodes  # probe_barcode per cell
 
-probe_idx   = np.concatenate(probe_idx_all)
-barcode_idx = np.concatenate(barcode_idx_all)
-counts      = np.concatenate(count_all)
-
-# Build sparse matrix: probes x barcodes
-mat = csr_matrix((counts, (probe_idx, barcode_idx)),
-                 shape=(len(probe_ids), len(barcodes_h5)))
+# Compute eta-squared at probe level (reuse compute_eta_sq() from Eta-Squared section)
+res_probe <- compute_eta_sq(expr, barcodes)
+sum(res_probe$eta_sq >= 0.01)  # probes with eta^2 >= 1%
 ```
 
-**Parse probe IDs** (format: `ENSG_ID-GENE_SYMBOL-PROBE_HASH`, separator is `-` not `|`):
-```python
-def parse_gene_symbol(probe_id):
-    parts = probe_id.split("-")
-    return parts[1] if len(parts) >= 2 else probe_id
-
-gene_symbols = [parse_gene_symbol(p) for p in probe_ids]
-```
+**IMPORTANT:** Requires Matrix >= 1.7 (R 4.5+). Older Matrix versions may drop dgCMatrix
+rownames when loading these caches.
 
 **Key finding from paper:** For SRP9, 2 probes exist — one essentially silent (0.4% detection,
 0.004 mean UMIs) and one fully active (~22 UMIs/cell). The entire barcode DE effect on SRP9

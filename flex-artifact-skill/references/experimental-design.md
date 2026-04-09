@@ -13,7 +13,7 @@
 - A **single barcode-free probe set** hybridizes to all samples in one step
 - Sample barcoding is done in a **separate oligo hybridization step** afterward
 - This decoupling is why Flex v2 shows substantially reduced barcode-associated technical variation
-- Metadata values typically: `A-A01` through `A-H12` (96-plex format)
+- Metadata values typically follow a plate-well format (e.g. `A-A01`, `A-H12`, `B-A01`, `C-G06`), where the prefix is the plate designation (A, B, C, etc.) and the suffix is the well position
 
 ---
 
@@ -70,7 +70,7 @@ Each biological sample is probe-hybridized **separately**, then barcoded. This m
 
 2. If values are `BC001`–`BC016`: you have **Flex v1** (Scenario A).
 
-3. If values look like `A-A01`, `A-B01`, etc.: you have **Flex v2**.
+3. If values follow a plate-well format like `A-A01`, `A-B01`, `B-C04`, etc. (plate letter prefix, hyphen, well coordinates): you have **Flex v2**.
    - Then ask: were cells pooled before probe hybridization (Scenario B) or hybridized separately per sample (Scenario C)?
 
 4. If metadata column is absent, check the cellranger multi config or the wet-lab protocol documentation.
