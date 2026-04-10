@@ -15,6 +15,33 @@ In 10x Genomics Flex v1, probe barcode identity drives substantial spurious diff
 **Reference paper:** "Sample barcoding-associated technical variation in probe-based single-cell RNA sequencing" (Weir, Krebs, Chen 2026)
 **Repository with analysis code and supplementary tables:** https://github.com/jacksonweir/flex-technical-variation
 
+> **Not all steps are necessary for every dataset.** Start with the highest-yield steps:
+> identify the experimental design (Step 1), check QC metrics (Step 2), and run the VCC
+> reference comparison (Steps 3–3b). These three steps together will usually give a clear
+> answer about whether the artifact is present and how severe it is. Ask the user whether
+> to proceed to eta-squared computation (Step 4), visualization (Step 5), or FDP analysis
+> (Step 6) based on what the initial steps reveal and what level of characterization is needed.
+
+---
+
+## Step 0 — Assign Probe Barcode Identity to Cells
+
+Before any analysis, confirm that each cell in your Seurat object has a `probe_barcode`
+metadata column (values like `BC001`–`BC016` for Flex v1). This column is required for
+all downstream steps.
+
+**If the column is already present** (e.g., loaded from per-sample cellranger multi outputs
+and labeled during object construction), proceed to Step 1.
+
+**If the column is absent** (e.g., you loaded a combined or aggregated matrix without
+per-sample metadata), extract probe barcode identity directly from the cell barcode sequences.
+In Flex v1, the last 8 bp of the 16 bp cell barcode encode the probe barcode identity. Match
+these 8 bp sequences against the BC001–BC016 whitelist to annotate each cell.
+
+Full code and the sequence whitelist are in: `references/extract-probe-barcodes.md`
+
+This approach is implemented in `scripts/figure1/01_setup_vcc_seurat.R` in this repository.
+
 ---
 
 ## Step 1 — Identify Assay Version and Experimental Design
@@ -22,6 +49,28 @@ In 10x Genomics Flex v1, probe barcode identity drives substantial spurious diff
 **Flex v1**: Probe barcode identity is embedded in the probe hybridization chemistry. Barcodes appear as values like `BC001`–`BC016` in cell metadata. Technical variation between barcodes is inherent. **Any DE comparing conditions assigned to different barcodes will be confounded.**
 
 **Flex v2**: Probe hybridization is barcode-free; barcoding happens in a separate oligo step. Barcodes follow a plate-well format (e.g. `A-A01`, `B-C04`) with the plate prefix varying depending on the plate used. The degree of technical variation depends on whether probe hybridization was bulk or per-sample.
+
+### Confounded Designs — Very Common and High Risk
+
+**A critical and common situation**: in many Flex v1 experiments, each biological
+condition is placed on a separate probe barcode. For example, treated cells on BC002 and
+control cells on BC011, or patient A on BC001 and patient B on BC002. In this case,
+**probe barcode identity is perfectly confounded with sample identity**. Any DE analysis
+between your biological conditions will produce a mix of two signals:
+
+1. Genuine biological differences between the conditions
+2. Technical artifact genes introduced by the probe barcode itself
+
+These two sources of DE are completely inseparable without an orthogonal label (e.g.,
+CRISPR guide assignments or HTOs — see Step 6). The paper benchmarks this directly: at
+|log2FC| ≥ 0.3, the median false discovery proportion is **67–91%** depending on which
+barcode pair is used. This means the majority of "significant" DE genes in a confounded
+comparison may not reflect biology at all.
+
+**For confounded designs, the immediate priority is the VCC reference comparison (Step 3b):**
+run FindAllMarkers on your data with probe barcode as the identity, then compare each
+barcode's one-vs-all DE to the VCC reference. This directly tests whether the same artifact
+genes are inflating your results.
 
 Check the barcode naming in cell metadata to identify which assay was used. For detailed scenarios (Flex v1, Flex v2 bulk hyb, Flex v2 independent hyb) and how to identify which applies to your data, read:
 `references/experimental-design.md`
@@ -43,6 +92,34 @@ Cross-reference your significant DE genes against the paper's supplementary tabl
 **Recurrently probe barcode-affected genes** (high η², reproducible across independent datasets): **SRP9, SPCS1, ISCU, RRM2, SLC2A3, ITSN1, PHF6, ADCY2**
 
 For code, read: `references/analysis-code.md` → Sections: FindAllMarkers, Pairwise DE
+
+---
+
+## Step 3b — VCC Reference Comparison and Confounded Design Check
+
+**This step is especially important when probe barcode is perfectly confounded with sample
+identity** (e.g., all treated cells on BC002, all control cells on BC011). In that design,
+probe barcode technical artifacts are indistinguishable from biological DE.
+
+**Primary approach — one-vs-all per barcode:** Run FindAllMarkers on your data with probe
+barcode as the identity. For each barcode, scatter-plot your avg_log2FC (barcode vs all
+others) against the VCC reference avg_log2FC for the same barcode from Supplementary Table
+1. Since both use the same one-vs-all design, the fold-changes are directly comparable. A
+positive Spearman ρ for any barcode means that barcode's artifact profile is present in
+your data. This is the most direct and interpretable diagnostic for confounded designs.
+
+**Advanced — pairwise comparison:** For a specific barcode pair of interest (e.g., the two
+barcodes that correspond to your treatment vs control), run pairwise DE and compare to an
+approximated VCC pairwise log2FC derived from Table 1.
+
+**Supplementary Table 1 (VCC) is the primary reference** because VCC NTC cells are
+biologically identical across all 16 barcodes — any DE between barcodes is unambiguously
+technical. Table 2 (PBMC) provides a second independent confirmation.
+
+Both tables are in `references/` in this skill directory for direct access.
+
+For full code (one-vs-all scatter plots, pairwise comparison, overlap statistics), read:
+`references/vcc-comparison.md`
 
 ---
 
@@ -116,9 +193,11 @@ For the full interpretation table (risk by experimental design), mitigation stra
 
 | File | When to read |
 |------|-------------|
+| `references/extract-probe-barcodes.md` | If your Seurat object lacks a probe barcode metadata column — extract BC001–BC016 identity from cell barcode sequences |
 | `references/experimental-design.md` | To understand Flex v1 vs v2 chemistry, the three experimental scenarios, and how to identify which applies to your data |
 | `references/analysis-code.md` | For complete R code: η² computation, FDP analysis, pairwise DE, all visualizations; Python code for probe-level h5 analysis |
 | `references/interpretation.md` | For detailed risk table, paper benchmark numbers, problematic gene lists, mitigation strategies, cross-dataset reproducibility |
+| `references/vcc-comparison.md` | For scatter plot code comparing your DE results to the VCC reference, and the confounded design check |
 
 ---
 
@@ -134,4 +213,16 @@ The paper's FindAllMarkers results for three datasets are in `supplementary_tabl
 
 Columns: `p_val, avg_log2FC, pct.1, pct.2, p_val_adj, cluster (probe barcode), gene`
 
-**Note:** Table 2 is the cleanest reference for identifying pure probe barcode artifacts — PBMC cells carry no CRISPR perturbations, so any DE between barcodes in this dataset is unambiguously technical. Table 1 includes all CRISPR guide populations, so a gene appearing in Table 1 could in principle be a genuine guide effect rather than a barcode artifact; cross-check against Table 2 or the problematic gene list to confirm.
+**Table 1 (VCC) is the primary reference for the confounded design check.** VCC NTC cells
+are biologically identical across all 16 barcodes, making this the gold-standard artifact
+gene list. Tables 1 and 2 are also available in `references/` within this skill directory
+for direct use without navigating to `supplementary_tables/`.
+
+**Table 2 (PBMC)** carries no CRISPR perturbations, so any DE between barcodes is
+unambiguously technical. Use it as a second independent confirmation when a gene appears
+in Table 1 — genes significant in both VCC and PBMC are highly reliable artifact indicators.
+
+**Note on Table 1 and CRISPR guide effects:** Table 1 includes all CRISPR guide populations.
+A gene appearing in Table 1 could in principle reflect a genuine CRISPR perturbation rather
+than a barcode artifact. Cross-check against Table 2 or the recurrently affected gene list
+(SRP9, SPCS1, ISCU, RRM2, SLC2A3, ITSN1, PHF6, ADCY2) to confirm technical origin.
